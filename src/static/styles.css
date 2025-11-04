@@ -15,6 +15,19 @@ body {
   background-color: #f5f5f5;
 }
 
+.delete-participant {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: #ff4444;
+  transition: transform 0.2s;
+}
+
+.delete-participant:hover {
+  transform: scale(1.1);
+}
+
 header {
   text-align: center;
   padding: 20px 0;
@@ -141,4 +154,49 @@ footer {
   margin-top: 30px;
   padding: 20px;
   color: #666;
+}
+
+.participants-section {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px dashed #ddd;
+}
+
+.participants-section h5 {
+  color: #1a237e;
+  margin-bottom: 8px;
+  font-size: 0.95em;
+}
+
+.participants-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.participants-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 4px;
+  font-size: 0.9em;
+  color: #555;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* Remove any pseudo-elements */
+.participants-list li::before {
+  content: none;
+  position: absolute;
+  left: 0;
+  color: #1a237e;
+}
+
+.no-participants {
+  margin-top: 8px;
+  font-style: italic;
+  color: #666;
+  font-size: 0.9em;
 }

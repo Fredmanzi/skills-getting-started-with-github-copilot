@@ -4,6 +4,41 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
 
+  // Function to unregister a participant
+  async function unregisterParticipant(activity, email) {
+    try {
+      const response = await fetch(
+        `/activities/${encodeURIComponent(activity)}/unregister?email=${encodeURIComponent(email)}`,
+        {
+          method: "POST",
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        messageDiv.textContent = "Successfully unregistered participant";
+        messageDiv.className = "success";
+        // Refresh activities to update the list
+        fetchActivities();
+      } else {
+        messageDiv.textContent = result.detail || "Failed to unregister participant";
+        messageDiv.className = "error";
+      }
+
+      messageDiv.classList.remove("hidden");
+      setTimeout(() => {
+        messageDiv.classList.add("hidden");
+      }, 5000);
+
+    } catch (error) {
+      console.error("Error unregistering participant:", error);
+      messageDiv.textContent = "Failed to unregister participant. Please try again.";
+      messageDiv.className = "error";
+      messageDiv.classList.remove("hidden");
+    }
+  }
+
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
@@ -20,12 +55,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        // Create participants list HTML
+        const participantsList = details.participants.length > 0
+          ? `
+            <div class="participants-section">
+              <h5>Current Participants:</h5>
+              <ul class="participants-list">
+                ${details.participants.map(email => `
+                  <li>
+                    <span>${email}</span>
+                    <button type="button" class="delete-participant" data-activity="${name}" data-email="${email}" aria-label="Delete participant">
+                      <span style="font-size: 1.2em;">🗑️</span>
+                    </button>
+                  </li>`).join('')}
+              </ul>
+            </div>
+          `
+          : '<p class="no-participants">No participants yet</p>';
+
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          ${participantsList}
         `;
+
+        // Add event listeners for delete buttons after content is in DOM
+        activityCard.querySelectorAll('.delete-participant').forEach(button => {
+          button.addEventListener('click', function() {
+            const email = this.getAttribute('data-email');
+            const activity = this.getAttribute('data-activity');
+            unregisterParticipant(activity, email);
+          });
+        });
 
         activitiesList.appendChild(activityCard);
 
@@ -62,6 +125,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        // Refresh the activities list to show the new participant
+        fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
